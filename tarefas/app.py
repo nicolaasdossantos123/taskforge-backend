@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from models import Tarefa
-import storage
+from tarefas.models import Tarefa
+import tarefas.storage as storage
 
 
 storage.carregar()
