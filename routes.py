@@ -9,7 +9,7 @@ router = APIRouter()
 @router.post("/usuarios")
 def criar_usuario(usuario: Usuario):
     
-    with engine.conexao() as conexao:
+    with engine.connect() as conexao:
         
         conexao.execute(
             text(
@@ -42,22 +42,21 @@ def listar_usuarios():
             text(
                 """
                 SELECT * FROM usuarios
-                WHERE id = :id
                 """
             ),
             {"id": id}
-    )
+        )
        
-    usuarios = resultado.fetchall()
+        usuarios = resultado.fetchall()
        
-    for usuario in usuarios:
-        dados_usuario = {
-            "id": usuario[0],
-            "nome": usuario[1],
-            "email": usuario[2]
-        }
-           
-        lista_usuarios.append(dados_usuario)
+        for usuario in usuarios:
+            dados_usuario = {
+                "id": usuario[0],
+                "nome": usuario[1],
+                "email": usuario[2]
+            }
+               
+            lista_usuarios.append(dados_usuario)
         
     return lista_usuarios
 
@@ -73,16 +72,15 @@ def procurar_usuario(id: int):
                 WHERE id = :id
                 """
             ),
-            {"id": id}
-    )
-        
-    usuario = resultado.fetchone()
-    
-    if usuario is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Usuario não encontrado"
         )
+        
+        usuario = resultado.fetchone()
+    
+        if usuario is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Usuario não encontrado"
+            )
     
     dados_usuario = {
         "id": usuario[0],
@@ -106,25 +104,25 @@ def deletar_usuario(id: int):
             {"id": id}
         )
 
-    usuario_encontrado = resultado.fetchone()
+        usuario_encontrado = resultado.fetchone()
     
-    if usuario_encontrado is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Usuário não encontrado"
-    )
+        if usuario_encontrado is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Usuário não encontrado"
+        )
         
-    conexao.execute(
-        text(
-            """
-            DELETE FROM usuarios 
-            WHERE id = :id
-            """
-            
-        ),
-        {"id": id}
-    )
-    conexao.commit()
+        conexao.execute(
+            text(
+                """
+                DELETE FROM usuarios 
+                WHERE id = :id
+                """
+                
+            ),
+            {"id": id}
+        )
+        conexao.commit()
     
     return {
         "mensagem": "Usuário deletado!",
